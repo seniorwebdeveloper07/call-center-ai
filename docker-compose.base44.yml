@@ -1,0 +1,68 @@
+# Base44 development environment for call-center-ai.
+#
+# The app is a single FastAPI service (granian) plus a Redis cache. Source is
+# bind-mounted and served by granian's reloader, so edits are live.
+# Azure resources (Cosmos DB, Communication Services, Azure OpenAI, AI Search,
+# Speech, Translation) are external: placeholders live in .base44/base44-config.yaml
+# and are overridden by env vars delivered in /run/base44/app.env.
+
+name: call-center-ai
+
+services:
+  cache:
+    image: redis:7
+    restart: on-failure
+    command: ["redis-server", "--requirepass", "base44-redis-password", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "base44-redis-password", "--no-auth-warning", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: cicd/Dockerfile.base44
+    restart: on-failure
+    ports:
+      - "3000:8080"
+    labels:
+      base44.project: Call Center AI
+      base44.kind: web
+      base44.port: 3000
+      base44.docs: /docs
+    env_file:
+      - /run/base44/app.env
+    environment:
+      - BASE44_PREVIEW_MODE
+      - PUBLIC_DOMAIN=https://3000-${BASE44_PUBLIC_HOST_SUFFIX}
+      - VERSION=0.0.0-base44
+      # Local Redis cache (credential generated here, not a user secret)
+      - CACHE__MODE=redis
+      - CACHE__REDIS__HOST=cache
+      - CACHE__REDIS__PORT=6379
+      - CACHE__REDIS__SSL=false
+      - CACHE__REDIS__PASSWORD=base44-redis-password
+      # Bind-mounted sources need polling for the file watcher
+      - WATCHFILES_FORCE_POLLING=true
+    volumes:
+      - .:/app
+      - uv-cache:/root/.cache/uv
+      - ./.base44/base44-config.yaml:/app/config.yaml:ro
+    command:
+      - sh
+      - -ec
+      - uv sync --frozen --extra dev --no-install-project && exec granian --host 0.0.0.0 --port 8080 --interface asgi --log-level info --reload --workers 1 --workers-kill-timeout 60 app.main:api
+    depends_on:
+      cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health/liveness"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+
+volumes:
+  uv-cache:

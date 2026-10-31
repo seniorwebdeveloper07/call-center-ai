@@ -1,0 +1,28 @@
+# Base44 development image.
+#
+# Provides the Python runtime, the toolchain needed by the locked dependencies and
+# `uv`. Application source is never baked in: docker-compose.base44.yml bind-mounts
+# the checkout at /app so edits are picked up by granian's reloader.
+
+FROM python:3.13-slim-bookworm
+
+# Build toolchain for the few dependencies without a prebuilt manylinux wheel
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir uv
+
+WORKDIR /app
+
+# Dependencies are resolved from the lockfile, outside of the bind-mounted source
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PATH="/opt/venv/bin:${PATH}"
+
+COPY pyproject.toml uv.lock ./
+
+RUN uv sync --frozen --extra dev --no-install-project
+
+CMD ["granian", "--host", "0.0.0.0", "--port", "8080", "--interface", "asgi", "app.main:api"]

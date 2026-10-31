@@ -33,7 +33,7 @@ from fastapi import (
     WebSocketDisconnect,
 )
 from fastapi.exceptions import RequestValidationError, ValidationException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from htmlmin.minify import html_minify
 from jinja2 import Environment, FileSystemLoader
 from pydantic import Field, TypeAdapter, ValidationError
@@ -178,6 +178,15 @@ api = FastAPI(
     title="call-center-ai",
     version=CONFIG.version,
 )
+
+
+# The API has no root route. In the Base44 sandbox preview, land on the
+# interactive documentation instead of a bare 404. Unset elsewhere.
+if getenv("BASE44_PREVIEW_MODE") == "1":
+
+    @api.get("/", include_in_schema=False)
+    async def root_get() -> RedirectResponse:
+        return RedirectResponse(url="/docs")
 
 
 @api.get("/health/liveness")

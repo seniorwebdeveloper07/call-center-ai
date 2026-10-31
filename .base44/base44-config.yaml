@@ -1,0 +1,69 @@
+# Base44 sandbox configuration (placeholders only).
+#
+# docker-compose.base44.yml mounts this file at /app/config.yaml so the API boots
+# without any Azure resource. Every value here is a dummy: calls, LLM answers,
+# search and persistence only work once real Azure resources are wired in.
+#
+# Override any value with an environment variable using the "__" nesting delimiter,
+# e.g. COMMUNICATION_SERVICES__ACCESS_KEY=...  (environment wins over this file).
+
+public_domain: http://localhost:3000
+
+resources:
+  public_url: https://xxx.blob.core.windows.net/public
+
+conversation:
+  initiate:
+    agent_phone_number: "+33612345678" # Phone number the bot transfers the call to for a human agent
+    bot_company: Contoso
+    bot_name: Amélie
+
+communication_services:
+  access_key: xxx
+  endpoint: https://xxx.communication.azure.com
+  phone_number: "+33612345678" # Phone number purchased from Communication Services
+  recording_container_url: https://xxx.blob.core.windows.net/recordings
+  resource_id: xxx
+
+cognitive_service:
+  endpoint: https://xxx.cognitiveservices.azure.com # Must be of type "AI services multi-service account"
+  region: swedencentral
+  resource_id: xxx
+
+database:
+  cosmos_db:
+    container: calls
+    database: callcenter
+    endpoint: https://xxx.documents.azure.com
+
+queue:
+  account_url: https://xxx.queue.core.windows.net
+  call_name: call-33612345678
+  post_name: post-33612345678
+  sms_name: sms-33612345678
+  training_name: training-33612345678
+
+app_configuration:
+  endpoint: https://xxx.azconfig.io
+
+llm:
+  fast:
+    context: 1047576
+    endpoint: https://xxx.openai.azure.com/openai/deployments/gpt-4.1-nano-2025-04-14
+    model: gpt-4.1-nano
+  slow:
+    context: 1047576
+    endpoint: https://xxx.openai.azure.com/openai/deployments/gpt-4.1-2025-04-14
+    model: gpt-4.1
+
+ai_search:
+  embedding_deployment: text-embedding-3-large-1
+  embedding_dimensions: 3072
+  embedding_endpoint: https://xxx.openai.azure.com
+  embedding_model: text-embedding-3-large
+  endpoint: https://xxx.search.windows.net
+  index: trainings
+
+ai_translation:
+  access_key: xxx
+  endpoint: https://xxx.cognitiveservices.azure.com

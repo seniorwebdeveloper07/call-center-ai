@@ -1,0 +1,72 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/health/liveness",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "COMMUNICATION_SERVICES__ACCESS_KEY",
+      "description": "Azure Communication Services access key (Azure portal > Communication Services > your resource > Keys). Required to place or receive calls.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "COMMUNICATION_SERVICES__ENDPOINT",
+      "description": "Azure Communication Services endpoint, e.g. https://<resource>.<region>.communication.azure.com",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "COMMUNICATION_SERVICES__PHONE_NUMBER",
+      "description": "E.164 phone number purchased in Azure Communication Services, e.g. +33612345678",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "COMMUNICATION_SERVICES__RESOURCE_ID",
+      "description": "Azure resource ID of the Communication Services resource (used as JWT audience for call callbacks).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "COGNITIVE_SERVICE__ENDPOINT",
+      "description": "Azure AI Services multi-service account endpoint, e.g. https://<resource>.cognitiveservices.azure.com (speech-to-text / text-to-speech).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "COGNITIVE_SERVICE__REGION",
+      "description": "Azure region of the AI Services resource, e.g. swedencentral.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "DATABASE__COSMOS_DB__ENDPOINT",
+      "description": "Azure Cosmos DB account URI, e.g. https://<account>.documents.azure.com — needed for call history and the /report web pages.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "LLM__FAST__ENDPOINT",
+      "description": "Azure OpenAI deployment URL for the fast model (gpt-4.1-nano), e.g. https://<resource>.openai.azure.com/openai/deployments/<deployment>",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "LLM__SLOW__ENDPOINT",
+      "description": "Azure OpenAI deployment URL for the main model (gpt-4.1), e.g. https://<resource>.openai.azure.com/openai/deployments/<deployment>",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "QUEUE__ACCOUNT_URL",
+      "description": "Azure Storage account queue endpoint, e.g. https://<account>.queue.core.windows.net — carries incoming call, SMS and post-call events.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "AZURE_TENANT_ID",
+      "description": "Service principal tenant ID used by DefaultAzureCredential for Cosmos DB, Azure OpenAI and Storage access.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "AZURE_CLIENT_ID",
+      "description": "Service principal client ID used by DefaultAzureCredential (grant it Cosmos DB, Cognitive Services and Storage roles).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "AZURE_CLIENT_SECRET",
+      "description": "Service principal client secret used by DefaultAzureCredential.",
+      "requiredAtBoot": false
+    }
+  ]
+}
